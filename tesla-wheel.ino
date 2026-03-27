@@ -1,14 +1,24 @@
 // Arduino Uno R4 WiFi - Random motor spin
 // Spins immediately on start, then waits randomly 20–40 seconds between spins
-// Spin duration: randomly 0.25–1.12 seconds
+// Spin duration: randomly 1–4 seconds with PWM fluctuation
 
 const int motorPin = 9; // PWM pin (good for speed control)
 
 unsigned long previousMillis = 0;
-unsigned long waitTime = 0; // random wait time between spins (ms)
+unsigned long waitTime = 0;       // random wait time between spins (ms)
+unsigned long runDuration = 0;    // random spin duration (ms)
 
 bool motorRunning = false;
 unsigned long motorStartTime = 0;
+unsigned long lastFluctuationMillis = 0;
+
+void startMotor() {
+  motorRunning = true;
+  motorStartTime = millis();
+  lastFluctuationMillis = millis();
+  runDuration = random(1000, 4001); // 1 to 4 seconds
+  analogWrite(motorPin, 255);
+}
 
 void setup() {
   pinMode(motorPin, OUTPUT);
@@ -16,9 +26,7 @@ void setup() {
   randomSeed(analogRead(0)); // improve randomness
 
   // Spin immediately on start
-  motorRunning = true;
-  motorStartTime = millis();
-  analogWrite(motorPin, 255);
+  startMotor();
   Serial.println("-> Motor ON (startup)");
 
   // Set wait time for after this first spin
@@ -31,24 +39,22 @@ void loop() {
   if (!motorRunning) {
     // === WAITING PHASE ===
     if (currentMillis - previousMillis >= waitTime) {
-      // Time to spin!
-      motorRunning = true;
-      motorStartTime = currentMillis;
-
-      // Spin at full speed (change 255 to lower value for slower spin)
-      analogWrite(motorPin, 255);
-
+      startMotor();
       Serial.println("-> Motor ON");
 
-      // Choose NEW random wait time for next cycle (20-40 seconds)
+      // Choose NEW random wait time for next cycle (20–40 seconds)
       waitTime = random(20000, 40001);
       previousMillis = currentMillis;
     }
   }
   else {
     // === MOTOR RUNNING PHASE ===
-    // Random spin duration between 0.25s and 1.12s
-    unsigned long runDuration = random(250, 1121); // 250ms to 1120ms
+
+    // Fluctuate PWM every 80ms for organic speed variation (200–255 range)
+    if (currentMillis - lastFluctuationMillis >= 80) {
+      analogWrite(motorPin, random(200, 256));
+      lastFluctuationMillis = currentMillis;
+    }
 
     if (currentMillis - motorStartTime >= runDuration) {
       // Stop the motor
