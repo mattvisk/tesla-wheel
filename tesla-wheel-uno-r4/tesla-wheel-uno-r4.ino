@@ -3,7 +3,7 @@
 Servo myWheel;
 
 const int CENTER = 90;
-const int ANGLE_OFFSET = 22;
+const int ANGLE_OFFSET = 25;
 
 void setup() {
   myWheel.attach(9);
@@ -12,11 +12,11 @@ void setup() {
   Serial.println("--- LEGO TESLA VOLUME KNOB STARTED ---");
 
   // === Simple startup movement to ensure it's working ===
-  myWheel.write(CENTER - ANGLE_OFFSET);    // 0°
-  delay(500);
+  myWheel.write(CENTER + ANGLE_OFFSET);    // +X°
+  delay(300);
 
-  myWheel.write(CENTER + ANGLE_OFFSET);   // +22°
-  delay(500);
+  myWheel.write(CENTER - ANGLE_OFFSET);   // -X°
+  delay(300);
 
   Serial.println("Startup done - now running continuously");
 }
@@ -24,11 +24,9 @@ void setup() {
 void loop() {
 
   delay(random(7000, 17001));
-  myWheel.write(CENTER + ANGLE_OFFSET);   // +22°
-  Serial.println(">> +22°");
+  myWheel.write(CENTER + ANGLE_OFFSET);   // +X°
 
   delay(random(7000, 17001));
-  myWheel.write(CENTER - ANGLE_OFFSET);    // -22°
-  Serial.println(">> -22°");
+  myWheel.write(CENTER - ANGLE_OFFSET);    // -X°
 
 }
