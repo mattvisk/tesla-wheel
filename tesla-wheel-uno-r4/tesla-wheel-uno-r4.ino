@@ -3,7 +3,10 @@
 Servo myWheel;
 
 const int CENTER = 90;
-const int ANGLE_OFFSET = 25;
+const int ANGLE_OFFSET = 18;
+
+const int DELAY_MIN = 7000;
+const int DELAY_MAX = 17000;
 
 void setup() {
   myWheel.attach(9);
@@ -23,10 +26,10 @@ void setup() {
 
 void loop() {
 
-  delay(random(7000, 17001));
+  delay(random(DELAY_MIN, DELAY_MAX + 1));
   myWheel.write(CENTER + ANGLE_OFFSET);   // +X°
 
-  delay(random(7000, 17001));
+  delay(random(DELAY_MIN, DELAY_MAX + 1));
   myWheel.write(CENTER - ANGLE_OFFSET);    // -X°
 
 }
