@@ -3,38 +3,32 @@
 Servo myWheel;
 
 void setup() {
-  myWheel.attach(9);        // Servo signal on pin 9
+  myWheel.attach(9);
   Serial.begin(115200);
 
-  Serial.println("--- TESLA WHEEL STARTING ---");
+  Serial.println("--- LEGO TESLA VOLUME KNOB STARTED ---");
+
+  // === Simple startup movement to ensure it's working ===
+  myWheel.write(90);    // Start at center
+  delay(500);
   
-  // Gentle startup to center
-  myWheel.write(90);
+  myWheel.write(112);   // Move to +22°
+  delay(800);
+  
+  myWheel.write(90);    // Back to center
   delay(800);
 
-  Serial.println("Program started - oscillating ±22°");
+  Serial.println("Startup done - now running continuously");
 }
 
 void loop() {
-  // === Move to +22° ===
-  myWheel.write(112);        // 90 + 22
-  Serial.println(">> Servo moved to +22°");
-  
-  long wait1 = random(7000, 17001);   // 7 to 17 seconds
-  Serial.print("Waiting ");
-  Serial.print(wait1 / 1000);
-  Serial.println(" seconds...");
-  delay(wait1);
 
-  // === Move to -22° ===
-  myWheel.write(68);         // 90 - 22
-  Serial.println(">> Servo moved to -22°");
-  
-  long wait2 = random(7000, 17001);   // 7 to 17 seconds
-  Serial.print("Waiting ");
-  Serial.print(wait2 / 1000);
-  Serial.println(" seconds...");
-  delay(wait2);
+  myWheel.write(112);   // +22°
+  Serial.println(">> +22°");
+  delay(random(7000, 17001));
 
-  Serial.println("-------------------------");
+  myWheel.write(68);    // -22°
+  Serial.println(">> -22°");
+  delay(random(7000, 17001));
+
 }
