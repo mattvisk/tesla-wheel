@@ -3,10 +3,12 @@
 Servo myWheel;
 
 const int CENTER = 90;
-const int ANGLE_OFFSET = 18;
+const int ANGLE_OFFSET = 17;
 
-const int DELAY_MIN = 7000;
-const int DELAY_MAX = 17000;
+const int SPEED = 1; 
+
+const int DELAY_MIN = 7000 / SPEED;
+const int DELAY_MAX = 17000 / SPEED;
 
 void setup() {
   myWheel.attach(9);
