@@ -1,46 +1,40 @@
-#include <Servo.h>        // ← Standard Servo library
+#include <Servo.h>
 
 Servo myWheel;
-bool nextDirectionForward = true;
 
 void setup() {
-  myWheel.attach(9);      // Pin 9 works great on R4 WiFi
-  randomSeed(analogRead(0));
+  myWheel.attach(9);        // Servo signal on pin 9
   Serial.begin(115200);
 
-  Serial.println("--- BOOTING SYSTEM ---");
-
-  // Startup jiggle
-  myWheel.write(110); delay(200);
-  myWheel.write(70);  delay(200);
-  myWheel.write(110); delay(200);
-  myWheel.write(70);  delay(200);
-  myWheel.write(110); delay(200);
+  Serial.println("--- TESLA WHEEL STARTING ---");
+  
+  // Gentle startup to center
   myWheel.write(90);
+  delay(800);
 
-  Serial.println("Handshake Complete. Waiting for first cycle...");
-  delay(2000);
+  Serial.println("Program started - oscillating ±22°");
 }
 
 void loop() {
-  long waitTime = random(8000, 18001);
-  Serial.print("Next move in: ");
-  Serial.print(waitTime / 1000);
-  Serial.println("s...");
-  delay(waitTime);
+  // === Move to +22° ===
+  myWheel.write(112);        // 90 + 22
+  Serial.println(">> Servo moved to +22°");
+  
+  long wait1 = random(7000, 17001);   // 7 to 17 seconds
+  Serial.print("Waiting ");
+  Serial.print(wait1 / 1000);
+  Serial.println(" seconds...");
+  delay(wait1);
 
-  if (nextDirectionForward) {
-    Serial.println(">> Spinning FORWARD");
-    myWheel.write(180);
-  } else {
-    Serial.println(">> Spinning BACKWARD");
-    myWheel.write(0);
-  }
+  // === Move to -22° ===
+  myWheel.write(68);         // 90 - 22
+  Serial.println(">> Servo moved to -22°");
+  
+  long wait2 = random(7000, 17001);   // 7 to 17 seconds
+  Serial.print("Waiting ");
+  Serial.print(wait2 / 1000);
+  Serial.println(" seconds...");
+  delay(wait2);
 
-  delay(random(500, 1201));
-  myWheel.write(90);
-  Serial.println("<< STOPPED.");
   Serial.println("-------------------------");
-
-  nextDirectionForward = !nextDirectionForward;
 }

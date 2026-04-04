@@ -1,45 +1,40 @@
-#include <ESP32Servo.h>
+#include <Servo.h>
 
 Servo myWheel;
-int currentPos = 90;
-
-void moveA() {
-  currentPos += 30;
-  myWheel.write(currentPos);
-  Serial.println(">> Move A (+30)");
-}
-
-void moveB() {
-  currentPos -= 30;
-  myWheel.write(currentPos);
-  Serial.println(">> Move B (-30)");
-}
 
 void setup() {
-  myWheel.attach(9);
+  myWheel.attach(9);        // Servo signal on pin 9
   Serial.begin(115200);
 
-  myWheel.write(currentPos);
-  delay(500);
+  Serial.println("--- TESLA WHEEL STARTING ---");
+  
+  // Gentle startup to center
+  myWheel.write(90);
+  delay(800);
 
-  Serial.println("--- START ---");
-  moveA();
+  Serial.println("Program started - oscillating ±22°");
 }
 
 void loop() {
-  long waitTime = random(7000, 16001);
+  // === Move to +22° ===
+  myWheel.write(112);        // 90 + 22
+  Serial.println(">> Servo moved to +22°");
+  
+  long wait1 = random(7000, 17001);   // 7 to 17 seconds
   Serial.print("Waiting ");
-  Serial.print(waitTime / 1000);
-  Serial.println("s...");
-  delay(waitTime);
+  Serial.print(wait1 / 1000);
+  Serial.println(" seconds...");
+  delay(wait1);
 
-  moveB();
-
-  waitTime = random(7000, 16001);
+  // === Move to -22° ===
+  myWheel.write(68);         // 90 - 22
+  Serial.println(">> Servo moved to -22°");
+  
+  long wait2 = random(7000, 17001);   // 7 to 17 seconds
   Serial.print("Waiting ");
-  Serial.print(waitTime / 1000);
-  Serial.println("s...");
-  delay(waitTime);
+  Serial.print(wait2 / 1000);
+  Serial.println(" seconds...");
+  delay(wait2);
 
-  moveA();
+  Serial.println("-------------------------");
 }
