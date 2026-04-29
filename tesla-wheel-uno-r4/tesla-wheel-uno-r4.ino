@@ -3,13 +3,15 @@
 Servo myWheel;
 
 // ====================== SETTINGS ======================
+const bool TEST_MODE = false;    // Set to true to halve delays for faster testing
+
 const int CENTER = 90;           // Middle position for the knob
 const int ANGLE_OFFSET = 10;     // How far left/right it swings
 
-const int STEP_DELAY = 10;       // Speed of movement (ms per degree). Higher = slower & smoother
+const int STEP_DELAY = 20;       // Speed of movement (ms per degree). Higher = slower & smoother
 
-const int DELAY_MIN = 9000;      // Minimum pause between sweeps (7 seconds)
-const int DELAY_MAX = 17000;     // Maximum pause between sweeps (17 seconds)
+const int DELAY_MIN = TEST_MODE ? 9000 / 2 : 9000;
+const int DELAY_MAX = TEST_MODE ? 17000 / 2 : 17000;
 
 // How long the whole thing runs before stopping
 const unsigned long RUN_TIME_MS = 3UL * 60 * 60 * 1000;  // 3 hours
