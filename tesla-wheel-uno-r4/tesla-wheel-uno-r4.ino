@@ -4,11 +4,11 @@ Servo myWheel;
 
 // ====================== SETTINGS ======================
 const int CENTER = 90;           // Middle position for the knob
-const int ANGLE_OFFSET = 17;     // How far left/right it swings
+const int ANGLE_OFFSET = 10;     // How far left/right it swings
 
-const int STEP_DELAY = 20;       // Speed of movement (ms per degree). Higher = slower & smoother
+const int STEP_DELAY = 10;       // Speed of movement (ms per degree). Higher = slower & smoother
 
-const int DELAY_MIN = 7000;      // Minimum pause between sweeps (7 seconds)
+const int DELAY_MIN = 9000;      // Minimum pause between sweeps (7 seconds)
 const int DELAY_MAX = 17000;     // Maximum pause between sweeps (17 seconds)
 
 // How long the whole thing runs before stopping
@@ -50,7 +50,7 @@ void setup() {
 
   startTime = millis();          // Remember when we started
 
-  // Friendly startup wiggle
+  // Slow startup wiggle from known center position
   sweepTo(CENTER + ANGLE_OFFSET);
   delay(300);
   sweepTo(CENTER - ANGLE_OFFSET);
