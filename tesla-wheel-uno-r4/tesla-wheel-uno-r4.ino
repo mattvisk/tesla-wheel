@@ -3,91 +3,94 @@
 Servo myWheel;
 
 // ====================== SETTINGS ======================
-const bool TEST_MODE = false;
+const bool TEST_MODE = false;    // Set to true to halve delays for faster testing
 
-const int CENTER = 90;
-const int SWING_DEGREES = 12;        // slightly more movement looks better
+const int CENTER = 90;           // Middle position for the knob
+const int SWING_DEGREES = 10;    // How many degrees left/right it turns from center
 
-const int MOVE_SPEED_MS = 8;         // ← ms per degree. 6-12 feels natural
+const int MS_PER_DEGREE = 0;    // How long to pause between each degree of movement. Higher = slower
 
-const int DELAY_MIN = TEST_MODE ? 4000 : 8000;
-const int DELAY_MAX = TEST_MODE ? 14000 : 22000;  // wider range feels more alive
+const int DELAY_MIN = TEST_MODE ? 9000 / 2 : 9000;
+const int DELAY_MAX = TEST_MODE ? 17000 / 2 : 17000;
 
+// How long the whole thing runs before stopping
 const unsigned long RUN_TIME_MS = 2UL * 60 * 60 * 1000;  // 2 hours
 
 // ====================== VARIABLES ======================
-unsigned long startTime = 0;
-bool running = true;
+unsigned long startTime = 0;     // When the program started
+bool running = true;             // Keeps track if we're still supposed to move
 
-// ====================== HELPER ======================
-void smoothMoveTo(int target) {
-  if (!running) return;
 
-  int current = myWheel.read();
+// ====================== HELPER FUNCTIONS ======================
+void sweepTo(int target) {
+  if (!running) return;          // Don't move if time is up
   
+  int current = myWheel.read();  // Where is the servo right now?
+  
+  // Smoothly move to the target position
   if (current < target) {
     for (int pos = current; pos <= target; pos++) {
       myWheel.write(pos);
-      delay(MOVE_SPEED_MS);
+      delay(MS_PER_DEGREE);
     }
   } else {
     for (int pos = current; pos >= target; pos--) {
       myWheel.write(pos);
-      delay(MOVE_SPEED_MS);
+      delay(MS_PER_DEGREE);
     }
   }
 }
+
 
 // ====================== SETUP ======================
 void setup() {
-  myWheel.attach(9);
+  myWheel.attach(9);             // Plug the servo into pin 9
   Serial.begin(115200);
 
   Serial.println("--- LEGO TESLA VOLUME KNOB STARTED ---");
-  Serial.print("Will run for ");
-  Serial.print(RUN_TIME_MS / 3600000);
-  Serial.println(" hours");
+  Serial.println("It will run for 3 hours then stop to save battery.");
 
-  startTime = millis();
+  startTime = millis();          // Remember when we started
 
-  // Gentle startup
-  smoothMoveTo(CENTER);
+  // Slow startup wiggle from known center position
+  sweepTo(CENTER + SWING_DEGREES);
   delay(300);
-  smoothMoveTo(CENTER + SWING_DEGREES);
-  delay(400);
-  smoothMoveTo(CENTER - SWING_DEGREES);
-  delay(400);
-  smoothMoveTo(CENTER);
+  sweepTo(CENTER - SWING_DEGREES);
+  delay(300);
 
-  Serial.println("Ready! 🎉");
+  Serial.println("Ready to go! 🎉");
 }
 
-// ====================== LOOP ======================
+
+// ====================== MAIN LOOP ======================
 void loop() {
-  // Time check
+  
+  // === Time check: Should we stop? ===
   if (running && (millis() - startTime >= RUN_TIME_MS)) {
-    Serial.println("Run time finished. Shutting down...");
+    Serial.println("1 hour is up! Signing off...");
+    // 3 goodbye movements, half a second apart
     for (int i = 0; i < 3; i++) {
-      smoothMoveTo(CENTER + SWING_DEGREES);
-      delay(400);
-      smoothMoveTo(CENTER - SWING_DEGREES);
-      delay(400);
+      myWheel.write(CENTER + SWING_DEGREES);
+      delay(500);
+      myWheel.write(CENTER - SWING_DEGREES);
+      delay(500);
     }
-    smoothMoveTo(CENTER);
-    myWheel.detach();           // important for battery life
+    myWheel.write(CENTER);       // Park in the middle
+    delay(500);
+    myWheel.detach();            // Save power
     running = false;
   }
 
+  // If we're done, just chill
   if (!running) {
     delay(1000);
     return;
   }
 
-  // === More natural behavior ===
-  delay(random(DELAY_MIN, DELAY_MAX + 1));
+  // === Normal dancing ===
+  delay(random(DELAY_MIN, DELAY_MAX + 1));   // Random pause
+  sweepTo(CENTER + SWING_DEGREES);            // Turn right
 
-  // Randomly choose direction and amount (more organic)
-  int direction = random(0, 2) ? 1 : -1;
-  int amount = random(6, SWING_DEGREES + 1);   // sometimes smaller swings
-  smoothMoveTo(CENTER + direction * amount);
+  delay(random(DELAY_MIN, DELAY_MAX + 1));   // Another random pause
+  sweepTo(CENTER - SWING_DEGREES);            // Turn left
 }
