@@ -8,10 +8,13 @@ const bool TEST_MODE = false;    // Set to true to halve delays for faster testi
 const int CENTER = 90;           // Middle position for the knob
 const int SWING_DEGREES = 10;    // How many degrees left/right it turns from center
 
-const int MS_PER_DEGREE = 0;    // How long to pause between each degree of movement. Higher = slower
+const int MS_PER_DEGREE = 14;    // How long to pause between each degree of movement. Higher = slower
 
-const int DELAY_MIN = TEST_MODE ? 9000 / 2 : 9000;
-const int DELAY_MAX = TEST_MODE ? 17000 / 2 : 17000;
+const int MIN = 9000;
+const int MAX = 17000;
+
+const int DELAY_MIN = TEST_MODE ? MIN / 2 : MIN;
+const int DELAY_MAX = TEST_MODE ? MAX / 2 : MAX;
 
 // How long the whole thing runs before stopping
 const unsigned long RUN_TIME_MS = 2UL * 60 * 60 * 1000;  // 2 hours
