@@ -8,7 +8,7 @@ const bool TEST_MODE = false;    // Set to true to halve delays for faster testi
 const int CENTER = 90;           // Middle position for the knob
 const int SWING_DEGREES = 10;    // How many degrees left/right it turns from center
 
-const int MS_PER_DEGREE = 8;     // v2: faster sweep (was 14) — moves decisively, less strain on servo
+const int MS_PER_DEGREE = 4;     // v3: faster sweep (was 8) — snappier move, less servo strain/noise
 
 const int SERVO_PIN = 9;
 
@@ -70,7 +70,7 @@ void sweepTo(int target) {
 // ====================== SETUP ======================
 void setup() {
   Serial.begin(115200);
-  Serial.println("--- TESLA WHEEL UNO R4 v2 ---");
+  Serial.println("--- TESLA WHEEL UNO R4 v3 ---");
   Serial.println("Running for 2 hours then stopping.");
 
   startTime = millis();
