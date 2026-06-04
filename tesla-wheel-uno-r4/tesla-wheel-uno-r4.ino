@@ -6,7 +6,7 @@ Servo myWheel;
 const bool TEST_MODE = false;    // Set to true to halve delays for faster testing
 
 const int CENTER = 90;           // Middle position for the knob
-const int SWING_DEGREES = 10;    // How many degrees left/right it turns from center
+const int SWING_DEGREES = 7;     // How many degrees left/right it turns from center
 
 const int MS_PER_DEGREE = 4;     // v3: faster sweep (was 8) — snappier move, less servo strain/noise
 
@@ -47,22 +47,23 @@ void sweepTo(int target) {
   servoAttach();
 
   int current = myWheel.read();
+  int steps = abs(target - current);
+  if (steps == 0) { servoDetach(); return; }
 
-  if (current < target) {
-    for (int pos = current; pos <= target; pos++) {
-      myWheel.write(pos);
-      delay(MS_PER_DEGREE);
-    }
-  } else {
-    for (int pos = current; pos >= target; pos--) {
-      myWheel.write(pos);
-      delay(MS_PER_DEGREE);
-    }
+  int dir = (target > current) ? 1 : -1;
+
+  for (int i = 0; i < steps; i++) {
+    int pos = current + dir * (i + 1);
+    myWheel.write(pos);
+
+    // Sinusoidal ease-in/out: slow at ends, fast in the middle
+    float t = (float)i / (steps - 1);  // 0.0 → 1.0
+    float ease = 0.5 - 0.5 * cos(PI * t);  // 0.0 → 1.0 smoothly
+    int ms = (int)(MS_PER_DEGREE * 3 * (1.0 - ease) + MS_PER_DEGREE * 0.5);
+    delay(ms);
   }
 
-  // v2: detach after reaching position — servo stops drawing hold current,
-  // eliminates buzzing/chatter caused by battery voltage sag under load
-  delay(50);       // Brief pause to let servo settle at position
+  delay(50);
   servoDetach();
 }
 
@@ -70,7 +71,7 @@ void sweepTo(int target) {
 // ====================== SETUP ======================
 void setup() {
   Serial.begin(115200);
-  Serial.println("--- TESLA WHEEL UNO R4 v3 ---");
+  Serial.println("--- TESLA WHEEL UNO R4 v4 ---");
   Serial.println("Running for 2 hours then stopping.");
 
   startTime = millis();
