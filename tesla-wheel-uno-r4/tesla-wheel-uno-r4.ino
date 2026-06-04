@@ -8,7 +8,9 @@ const bool TEST_MODE = false;    // Set to true to halve delays for faster testi
 const int CENTER = 90;           // Middle position for the knob
 const int SWING_DEGREES = 10;    // How many degrees left/right it turns from center
 
-const int MS_PER_DEGREE = 14;    // How long to pause between each degree of movement. Higher = slower
+const int MS_PER_DEGREE = 8;     // v2: faster sweep (was 14) — moves decisively, less strain on servo
+
+const int SERVO_PIN = 9;
 
 const int MIN = 9000;
 const int MAX = 17000;
@@ -20,17 +22,32 @@ const int DELAY_MAX = TEST_MODE ? MAX / 2 : MAX;
 const unsigned long RUN_TIME_MS = 2UL * 60 * 60 * 1000;  // 2 hours
 
 // ====================== VARIABLES ======================
-unsigned long startTime = 0;     // When the program started
-bool running = true;             // Keeps track if we're still supposed to move
+unsigned long startTime = 0;
+bool running = true;
 
 
 // ====================== HELPER FUNCTIONS ======================
+
+void servoAttach() {
+  if (!myWheel.attached()) {
+    myWheel.attach(SERVO_PIN);
+    delay(20);  // Brief settle time after attach
+  }
+}
+
+void servoDetach() {
+  if (myWheel.attached()) {
+    myWheel.detach();
+  }
+}
+
 void sweepTo(int target) {
-  if (!running) return;          // Don't move if time is up
-  
-  int current = myWheel.read();  // Where is the servo right now?
-  
-  // Smoothly move to the target position
+  if (!running) return;
+
+  servoAttach();
+
+  int current = myWheel.read();
+
   if (current < target) {
     for (int pos = current; pos <= target; pos++) {
       myWheel.write(pos);
@@ -42,58 +59,65 @@ void sweepTo(int target) {
       delay(MS_PER_DEGREE);
     }
   }
+
+  // v2: detach after reaching position — servo stops drawing hold current,
+  // eliminates buzzing/chatter caused by battery voltage sag under load
+  delay(50);       // Brief pause to let servo settle at position
+  servoDetach();
 }
 
 
 // ====================== SETUP ======================
 void setup() {
-  myWheel.attach(9);             // Plug the servo into pin 9
   Serial.begin(115200);
+  Serial.println("--- TESLA WHEEL UNO R4 v2 ---");
+  Serial.println("Running for 2 hours then stopping.");
 
-  Serial.println("--- LEGO TESLA VOLUME KNOB STARTED ---");
-  Serial.println("It will run for 3 hours then stop to save battery.");
+  startTime = millis();
 
-  startTime = millis();          // Remember when we started
+  // Startup wiggle from known center
+  servoAttach();
+  myWheel.write(CENTER);
+  delay(500);
 
-  // Slow startup wiggle from known center position
   sweepTo(CENTER + SWING_DEGREES);
   delay(300);
   sweepTo(CENTER - SWING_DEGREES);
   delay(300);
+  sweepTo(CENTER);
 
-  Serial.println("Ready to go! 🎉");
+  Serial.println("Ready! Servo detaches between moves to reduce noise.");
 }
 
 
 // ====================== MAIN LOOP ======================
 void loop() {
-  
+
   // === Time check: Should we stop? ===
   if (running && (millis() - startTime >= RUN_TIME_MS)) {
-    Serial.println("1 hour is up! Signing off...");
-    // 3 goodbye movements, half a second apart
+    Serial.println("2 hours up! Signing off...");
+    // 3 goodbye movements
     for (int i = 0; i < 3; i++) {
-      myWheel.write(CENTER + SWING_DEGREES);
+      sweepTo(CENTER + SWING_DEGREES);
       delay(500);
-      myWheel.write(CENTER - SWING_DEGREES);
+      sweepTo(CENTER - SWING_DEGREES);
       delay(500);
     }
-    myWheel.write(CENTER);       // Park in the middle
-    delay(500);
-    myWheel.detach();            // Save power
+    sweepTo(CENTER);
+    servoDetach();
     running = false;
   }
 
-  // If we're done, just chill
   if (!running) {
     delay(1000);
     return;
   }
 
-  // === Normal dancing ===
-  delay(random(DELAY_MIN, DELAY_MAX + 1));   // Random pause
-  sweepTo(CENTER + SWING_DEGREES);            // Turn right
+  // === Normal movement ===
+  // Servo is detached during pauses — quiet, no hold current drain
+  delay(random(DELAY_MIN, DELAY_MAX + 1));
+  sweepTo(CENTER + SWING_DEGREES);
 
-  delay(random(DELAY_MIN, DELAY_MAX + 1));   // Another random pause
-  sweepTo(CENTER - SWING_DEGREES);            // Turn left
+  delay(random(DELAY_MIN, DELAY_MAX + 1));
+  sweepTo(CENTER - SWING_DEGREES);
 }
