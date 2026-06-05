@@ -1,5 +1,4 @@
 #include <Servo.h>
-#include "Arduino_LowPower.h"
 
 Servo myWheel;
 
@@ -108,9 +107,10 @@ void loop() {
     sweepTo(CENTER);
     servoDetach();
     running = false;
-    Serial.println("Entering deep sleep. Goodbye.");
+    Serial.println("Entering low-power idle. Goodbye.");
     Serial.flush();
-    LowPower.deepSleep();  // ~2µA — wakes only on hardware reset
+    // R4: use ARM WFI to halt CPU between interrupts — lowest power without external library
+    while (true) { __WFI(); }
   }
 
   if (!running) return;
