@@ -1,4 +1,5 @@
 #include <Servo.h>
+#include "Arduino_LowPower.h"
 
 Servo myWheel;
 
@@ -71,7 +72,7 @@ void sweepTo(int target) {
 // ====================== SETUP ======================
 void setup() {
   Serial.begin(115200);
-  Serial.println("--- TESLA WHEEL UNO R4 v6 ---");
+  Serial.println("--- TESLA WHEEL UNO R4 v7 ---");
   Serial.println("Running for 2 hours then stopping.");
 
   startTime = millis();
@@ -107,12 +108,12 @@ void loop() {
     sweepTo(CENTER);
     servoDetach();
     running = false;
+    Serial.println("Entering deep sleep. Goodbye.");
+    Serial.flush();
+    LowPower.deepSleep();  // ~2µA — wakes only on hardware reset
   }
 
-  if (!running) {
-    delay(1000);
-    return;
-  }
+  if (!running) return;
 
   // === Normal movement ===
   // Servo is detached during pauses — quiet, no hold current drain
