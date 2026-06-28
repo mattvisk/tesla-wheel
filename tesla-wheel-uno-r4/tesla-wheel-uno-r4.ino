@@ -6,13 +6,13 @@ Servo myWheel;
 const bool TEST_MODE = false;    // Set to true to halve delays for faster testing
 
 const int CENTER = 90;           // Middle position for the knob
-const int SWING_DEGREES = 15;    // Increased to ensure enough travel to turn dial
+const int SWING_DEGREES = 22;    // Increased to ensure enough travel to turn dial
 
-const int MS_PER_DEGREE = 6;     // v5: slightly slower with easing for smoother, quieter movement
+const int MS_PER_DEGREE = 2;     // v5: slightly slower with easing for smoother, quieter movement
 
 const int SERVO_PIN = 9;
 
-const int MIN = 9000;
+const int MIN = 11000;
 const int MAX = 17000;
 
 const int DELAY_MIN = TEST_MODE ? MIN / 2 : MIN;
